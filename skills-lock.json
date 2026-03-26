@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "mvc-architecture": {
+      "source": "ds-codi/project-memory-mcp",
+      "sourceType": "github",
+      "computedHash": "5c7fa060d78a54e4746c6b27a90278ae9dfd85422221f359490d3e5265e35ff9"
+    }
+  }
+}

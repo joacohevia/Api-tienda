@@ -1,0 +1,1069 @@
+openapi: 3.0.0
+info:
+  title: Tienda de Ropa API
+  description: API REST para gestión de una tienda de ropa con usuarios, productos, categorías y pedidos
+  version: 1.0.0
+  contact:
+    name: Joaquín Hevia
+    email: admin@tiendaropa.local
+
+servers:
+  - url: http://localhost/tiendaRopa/tienda/api
+    description: Servidor de desarrollo
+  
+
+tags:
+  - name: Autenticación
+    description: Endpoints para autenticación y registro
+  - name: Categorías
+    description: Gestión de categorías de productos
+  - name: Productos
+    description: Gestión de productos y variantes
+  - name: Usuarios
+    description: Gestión de usuarios (administrador)
+  - name: Pedidos
+    description: Gestión de pedidos y carrito
+
+security:
+  - sessionAuth: []
+
+paths:
+  # ==================== AUTENTICACIÓN ====================
+  /auth/login:
+    post:
+      tags:
+        - Autenticación
+      summary: Iniciar sesión
+      description: Autentica un usuario con email y contraseña, genera token de sesión
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: admin@gmail.com
+                password:
+                  type: string
+                  format: password
+                  example: password123
+      responses:
+        '200':
+          description: Login exitoso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje:
+                    type: string
+                  usuario:
+                    $ref: '#/components/schemas/Usuario'
+        '400':
+          description: Campos requeridos faltantes o inválidos
+        '401':
+          description: Email o contraseña incorrectos
+
+  /auth/registro:
+    post:
+      tags:
+        - Autenticación
+      summary: Registrar nuevo usuario
+      description: Crea un nuevo usuario como cliente (no puede ser admin)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nombre
+                - apellido
+                - dni
+                - email
+                - password
+              properties:
+                nombre:
+                  type: string
+                  example: Juan
+                apellido:
+                  type: string
+                  example: Pérez
+                dni:
+                  type: integer
+                  example: 12345678
+                email:
+                  type: string
+                  format: email
+                  example: juan@gmail.com
+                password:
+                  type: string
+                  format: password
+                  minLength: 6
+                  example: password123
+      responses:
+        '201':
+          description: Usuario registrado exitosamente
+        '400':
+          description: Validación fallida (campos inválidos)
+        '409':
+          description: Email o DNI ya registrados
+
+  /auth/perfil:
+    get:
+      tags:
+        - Autenticación
+      summary: Obtener perfil del usuario
+      description: Retorna los datos del usuario autenticado
+      responses:
+        '200':
+          description: Perfil del usuario
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usuario'
+        '401':
+          description: Usuario no autenticado
+    put:
+      tags:
+        - Autenticación
+      summary: Actualizar perfil
+      description: Actualiza los datos del usuario autenticado (solo nombre, apellido, email)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nombre
+                - apellido
+                - dni
+                - email
+              properties:
+                nombre:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                apellido:
+                  type: string
+                dni:
+                  type: integer
+      responses:
+        '200':
+          description: Perfil actualizado
+        '401':
+          description: Usuario no autenticado
+        '409':
+          description: Email ya en uso
+
+  /auth/logout:
+    post:
+      tags:
+        - Autenticación
+      summary: Cerrar sesión
+      description: Destruye la sesión del usuario autenticado
+      responses:
+        '200':
+          description: Sesión cerrada exitosamente
+
+  /auth/verificar:
+    get:
+      tags:
+        - Autenticación
+      summary: Verificar autenticación
+      description: Retorna el estado de autenticación actual
+      security: []
+      responses:
+        '200':
+          description: Estado de autenticación
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  autenticado:
+                    type: boolean
+                  usuario:
+                    type: object
+                    properties:
+                      id_usuario:
+                        type: integer
+                      email:
+                        type: string
+                      rol:
+                        type: string
+
+  # ==================== CATEGORÍAS ====================
+  /listar:
+    get:
+      tags:
+        - Categorías
+      summary: Obtener todas las categorías
+      description: Retorna un listado de todas las categorías disponibles
+      security: []
+      responses:
+        '200':
+          description: Listado de categorías
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Categoria'
+        '404':
+          description: No hay categorías disponibles
+    post:
+      tags:
+        - Categorías
+      summary: Crear categoría
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoriaInput'
+      responses:
+        '201':
+          description: Categoría creada exitosamente
+        '400':
+          description: Validación fallida
+
+  /listar/{id}:
+    get:
+      tags:
+        - Categorías
+      summary: Obtener categoría por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      security: []
+      responses:
+        '200':
+          description: Datos de la categoría
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Categoria'
+        '404':
+          description: Categoría no encontrada
+    put:
+      tags:
+        - Categorías
+      summary: Actualizar categoría
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoriaInput'
+      responses:
+        '200':
+          description: Categoría actualizada
+        '404':
+          description: Categoría no encontrada
+    delete:
+      tags:
+        - Categorías
+      summary: Eliminar categoría
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Categoría eliminada
+
+  # ==================== PRODUCTOS ====================
+  /productos:
+    get:
+      tags:
+        - Productos
+      summary: Obtener todos los productos
+      description: Retorna listado de productos activos con su categoría
+      security: []
+      responses:
+        '200':
+          description: Listado de productos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Producto'
+    post:
+      tags:
+        - Productos
+      summary: Crear producto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductoInput'
+      responses:
+        '201':
+          description: Producto creado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id_producto:
+                    type: integer
+                  mensaje:
+                    type: string
+
+  /productos/{id}:
+    get:
+      tags:
+        - Productos
+      summary: Obtener producto con variantes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      security: []
+      responses:
+        '200':
+          description: Datos del producto con variantes
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Producto'
+                  - type: object
+                    properties:
+                      variantes:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Variante'
+    put:
+      tags:
+        - Productos
+      summary: Actualizar producto
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductoInput'
+      responses:
+        '200':
+          description: Producto actualizado
+    delete:
+      tags:
+        - Productos
+      summary: Eliminar producto
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Producto eliminado
+
+  /productos/{id}/desactivar:
+    put:
+      tags:
+        - Productos
+      summary: Desactivar producto
+      description: Marca el producto como inactivo sin eliminarlo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Producto desactivado
+
+  /productos/categoria/{id}:
+    get:
+      tags:
+        - Productos
+      summary: Obtener productos por categoría(solo los activos)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      security: []
+      responses:
+        '200':
+          description: Productos de la categoría
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Producto'
+
+  /productos/{id}/variantes:
+    post:
+      tags:
+        - Productos
+      summary: Crear variante
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VarianteInput'
+      responses:
+        '201':
+          description: Variante creada
+
+  /variantes/{id_variante}:
+    get:
+      tags:
+        - Productos
+      summary: Obtener variante
+      parameters:
+        - name: id_variante
+          in: path
+          required: true
+          schema:
+            type: integer
+      security: []
+      responses:
+        '200':
+          description: Datos de la variante
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Variante'
+    put:
+      tags:
+        - Productos
+      summary: Actualizar variante
+      parameters:
+        - name: id_variante
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VarianteInput'
+      responses:
+        '200':
+          description: Variante actualizada
+    delete:
+      tags:
+        - Productos
+      summary: Eliminar variante
+      parameters:
+        - name: id_variante
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Variante eliminada
+
+  /variantes/{id_variante}/stock:
+    put:
+      tags:
+        - Productos
+      summary: Actualizar stock
+      parameters:
+        - name: id_variante
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - stock
+              properties:
+                stock:
+                  type: integer
+                  minimum: 0
+      responses:
+        '200':
+          description: Stock actualizado
+
+  # ==================== USUARIOS ====================
+  /usuarios:
+    get:
+      tags:
+        - Usuarios
+      summary: Listar usuarios
+      description: Requiere permisos de administrador
+      responses:
+        '200':
+          description: Listado de usuarios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Usuario'
+    post:
+      tags:
+        - Usuarios
+      summary: Crear usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UsuarioInput'
+                - type: object
+                  properties:
+                    rol:
+                      type: string
+                      enum: [admin, cliente]
+                      default: cliente
+      responses:
+        '201':
+          description: Usuario creado
+
+  /usuarios/{id}:
+    get:
+      tags:
+        - Usuarios
+      summary: Obtener usuario
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Datos del usuario
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usuario'
+    put:
+      tags:
+        - Usuarios
+      summary: Actualizar usuario
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsuarioInput'
+      responses:
+        '200':
+          description: Usuario actualizado
+    delete:
+      tags:
+        - Usuarios
+      summary: Eliminar usuario
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Usuario eliminado
+
+  /usuarios/{id}/cambiar-password:
+    put:
+      tags:
+        - Usuarios
+      summary: Cambiar contraseña
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - passwordActual
+                - passwordNueva
+              properties:
+                passwordActual:
+                  type: string
+                  format: password
+                passwordNueva:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Contraseña actualizada
+        '401':
+          description: Contraseña actual incorrecta
+
+  # ==================== PEDIDOS ====================
+  /pedidos:
+    get:
+      tags:
+        - Pedidos
+      summary: Listar pedidos
+      description: Requiere permisos de administrador
+      responses:
+        '200':
+          description: Listado de pedidos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pedido'
+    post:
+      tags:
+        - Pedidos
+      summary: Crear pedido
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id_usuario
+              properties:
+                id_usuario:
+                  type: integer
+                estado:
+                  type: string
+                  enum: [carrito, pendiente, pagado, enviado, cancelado]
+                  default: carrito
+      responses:
+        '201':
+          description: Pedido creado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id_pedido:
+                    type: integer
+                  mensaje:
+                    type: string
+
+  /pedidos/{id}:
+    get:
+      tags:
+        - Pedidos
+      summary: Obtener pedido con detalles
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detalle del pedido con productos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PedidoDetalle'
+    put:
+      tags:
+        - Pedidos
+      summary: Actualizar estado del pedido
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - estado
+              properties:
+                estado:
+                  type: string
+                  enum: [carrito, pendiente, pagado, enviado, cancelado]
+      responses:
+        '200':
+          description: Estado actualizado
+    delete:
+      tags:
+        - Pedidos
+      summary: Eliminar pedido
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Pedido eliminado
+
+  /pedidos/usuario/{id}:
+    get:
+      tags:
+        - Pedidos
+      summary: Obtener pedidos de un usuario
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Pedidos del usuario
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pedido'
+
+  /pedidos/{id}/productos:
+    post:
+      tags:
+        - Pedidos
+      summary: Agregar producto al pedido
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id_variante
+                - cantidad
+                - precio_unitario
+              properties:
+                id_variante:
+                  type: integer
+                cantidad:
+                  type: integer
+                  minimum: 1
+                precio_unitario:
+                  type: number
+                  format: float
+      responses:
+        '201':
+          description: Producto agregado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje:
+                    type: string
+                  nuevo_total:
+                    type: number
+
+  /pedidos/producto/{id_pedido_producto}:
+    put:
+      tags:
+        - Pedidos
+      summary: Actualizar cantidad de producto
+      parameters:
+        - name: id_pedido_producto
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - cantidad
+              properties:
+                cantidad:
+                  type: integer
+                  minimum: 0
+      responses:
+        '200':
+          description: Cantidad actualizada
+    delete:
+      tags:
+        - Pedidos
+      summary: Eliminar producto del pedido
+      parameters:
+        - name: id_pedido_producto
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Producto eliminado
+
+components:
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: PHPSESSID
+      description: Autenticación mediante sesión PHP
+
+  schemas:
+    Usuario:
+      type: object
+      properties:
+        id_usuario:
+          type: integer
+        nombre:
+          type: string
+        apellido:
+          type: string
+        dni:
+          type: integer
+        email:
+          type: string
+          format: email
+        rol:
+          type: string
+          enum: [admin, cliente]
+        creado:
+          type: string
+          format: date-time
+
+    UsuarioInput:
+      type: object
+      required:
+        - nombre
+        - apellido
+        - dni
+        - email
+        - password
+      properties:
+        nombre:
+          type: string
+          minLength: 1
+        apellido:
+          type: string
+          minLength: 1
+        dni:
+          type: integer
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          minLength: 6
+
+    Categoria:
+      type: object
+      properties:
+        id_categoria:
+          type: integer
+        nombre:
+          type: string
+        descripcion:
+          type: string
+
+    CategoriaInput:
+      type: object
+      required:
+        - nombre
+      properties:
+        nombre:
+          type: string
+        descripcion:
+          type: string
+
+    Producto:
+      type: object
+      properties:
+        id_producto:
+          type: integer
+        id_categoria:
+          type: integer
+        categoria_nombre:
+          type: string
+        nombre:
+          type: string
+        descripcion:
+          type: string
+        precio_base:
+          type: number
+          format: float
+        marca:
+          type: string
+        img:
+          type: string
+        activo:
+          type: boolean
+
+    ProductoInput:
+      type: object
+      required:
+        - id_categoria
+        - nombre
+        - precio_base
+      properties:
+        id_categoria:
+          type: integer
+        nombre:
+          type: string
+        descripcion:
+          type: string
+        precio_base:
+          type: number
+          format: float
+          minimum: 0.01
+        marca:
+          type: string
+        img:
+          type: string
+        activo:
+          type: boolean
+          default: 1
+
+    Variante:
+      type: object
+      properties:
+        id_variante:
+          type: integer
+        id_producto:
+          type: integer
+        talle:
+          type: string
+        color:
+          type: string
+        precio:
+          type: number
+          format: float
+        stock:
+          type: integer
+
+    VarianteInput:
+      type: object
+      required:
+        - precio
+        - stock
+      properties:
+        talle:
+          type: string
+        color:
+          type: string
+        precio:
+          type: number
+          format: float
+          minimum: 0.01
+        stock:
+          type: integer
+          minimum: 0
+
+    Pedido:
+      type: object
+      properties:
+        id_pedido:
+          type: integer
+        id_usuario:
+          type: integer
+        nombre:
+          type: string
+        apellido:
+          type: string
+        email:
+          type: string
+          format: email
+        fecha:
+          type: string
+          format: date-time
+        estado:
+          type: string
+          enum: [carrito, pendiente, pagado, enviado, cancelado]
+        total:
+          type: number
+          format: float
+
+    PedidoDetalle:
+      allOf:
+        - $ref: '#/components/schemas/Pedido'
+        - type: object
+          properties:
+            productos:
+              type: array
+              items:
+                type: object
+                properties:
+                  id_pedido_producto:
+                    type: integer
+                  id_variante:
+                    type: integer
+                  cantidad:
+                    type: integer
+                  precio_unitario:
+                    type: number
+                  producto_nombre:
+                    type: string
+                  talle:
+                    type: string
+                  color:
+                    type: string
