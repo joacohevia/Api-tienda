@@ -1,12 +1,9 @@
 <?php
-require_once 'config.php';
-require_once 'libs/Router.php';
-require_once './app/controllers/AuthController.php';
-require_once './app/controllers/CategoriaController.php';
-require_once './app/controllers/UsuarioController.php';
-require_once './app/controllers/PedidoController.php';
-require_once './app/controllers/ProductoController.php';
-
+// Deshabilitar errores HTML en producción (para no romper JSON)
+error_reporting(E_ALL);      // ← Reporta TODOS los errores
+ini_set('display_errors', 0); // ← NO los muestra en el HTML/JSON (0 = apagado)
+ini_set('log_errors', 1);     // ← Sí los guarda en un archivo (1 = encendido)
+ini_set('error_log', 'php-errors.log'); // ← Nombre del archivo de log
 // 🌐 HEADERS CORS para swuagger
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
@@ -17,6 +14,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
 }
+require_once 'config.php';
+require_once 'libs/Router.php';
+require_once './app/controllers/AuthController.php';
+require_once './app/controllers/CategoriaController.php';
+require_once './app/controllers/UsuarioController.php';
+require_once './app/controllers/PedidoController.php';
+require_once './app/controllers/ProductoController.php';
+
 //Las rutas publicas puede acceder cualquiera mientras las que necesitan
 //auth solo los usuario, que a su vez se verifica que sean admin si corresponde
 $router = new Router();

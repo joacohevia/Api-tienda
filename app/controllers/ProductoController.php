@@ -3,6 +3,9 @@
 require_once 'app/models/ProductoModel.php';
 require_once 'app/view/Api.View.php';
 require_once 'helpers/JWTAuth.helper.php';
+require_once 'app/DTO/producto/productoDTO.php';
+require_once 'app/DTO/producto/productoVarianteDTO.php';
+require_once 'app/DTO/producto/ProductoCategoriaDTO.php';
 
 class ProductoController {
 
@@ -21,12 +24,14 @@ class ProductoController {
     }
 
     // ==================== GESTIÓN DE PRODUCTOS ====================
+//necesito q esta funcion por producto traiga sus variantes
 
     function listar($params = []){
         $productos = $this->model->listarProductos();
 
         if($productos){
-            $this->view->response($productos, 200);
+            $productosDTO = ProductDTO::fromDatabaseList($productos);
+            $this->view->response($productosDTO, 200);
         }else{
             $this->view->response('No hay productos disponibles', 404);
         }
@@ -48,7 +53,8 @@ class ProductoController {
         $productos = $this->model->listarProductosPorCategoria($id_categoria);
 
         if($productos !== false){
-            $this->view->response($productos, 200);
+            $productosDTO = ProductoCategoriaDTO::fromDatabaseList($productos);
+            $this->view->response($productosDTO, 200);
         }else{
             $this->view->response('Error al obtener productos', 500);
         }
@@ -67,8 +73,9 @@ class ProductoController {
             $this->view->response('Producto no encontrado', 404);
             return;
         }
-
-        $this->view->response($producto, 200);
+        //fromDatabase sin list porque devuelvo un solo producto
+        $productosDTO = ProductoVarianteDTO::fromDatabase($producto);
+        $this->view->response($productosDTO, 200);
     }
 
     function crear($params = []){

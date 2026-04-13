@@ -4,6 +4,8 @@ require_once 'app/models/UsuarioModel.php';
 require_once 'app/service/AuthService.php';
 require_once 'app/view/Api.View.php';
 require_once 'helpers/JWTAuth.helper.php';
+require_once 'app/DTO/auth/LoginDTO.php';
+require_once 'app/DTO/auth/RegistroDTO.php';
 
 class AuthController {
 
@@ -58,20 +60,7 @@ class AuthController {
         $token = $this->authService->generarToken($usuario);
 
         // Responder con el token y datos del usuario
-        $respuesta = [
-            'mensaje' => 'Login exitoso',
-            'token' => $token,
-            'usuario' => [
-                'id_usuario' => $usuario->id_usuario,
-                'nombre' => $usuario->nombre,
-                'apellido' => $usuario->apellido,
-                'email' => $usuario->email,
-                'dni' => $usuario->dni,
-                'rol' => $usuario->rol,
-                'creado' => $usuario->creado
-            ]
-        ];
-
+        $respuesta = LoginDTO::fromDatabase($usuario, $token);
         $this->view->response($respuesta, 200);
     }
 
@@ -148,7 +137,9 @@ class AuthController {
             $data->password, 
             'cliente'
         )){
-            $this->view->response('Usuario registrado exitosamente. Por favor inicia sesión.', 201);
+            $usuario = $this->usuarioModel->obtenerPorEmail($data->email);
+            $respuesta = RegistroDTO::fromDatabase($usuario);
+            $this->view->response($respuesta, 201);
         }else{
             $this->view->response('Error al registrar el usuario', 500);
         }

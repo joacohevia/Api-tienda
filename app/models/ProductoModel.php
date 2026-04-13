@@ -26,6 +26,63 @@ class ProductoModel extends Model{
         return $query->fetchAll(PDO::FETCH_OBJ);
     }
 
+    function listarProductosConVariantes(){
+        $query = $this->db->prepare("
+            SELECT 
+                p.id_producto,
+                p.id_categoria,
+                c.nombre AS categoria_nombre,
+                p.nombre,
+                p.descripcion,
+                p.precio_base,
+                p.marca,
+                p.img,
+                p.activo,
+                v.id_variante,
+                v.talle,
+                v.color,
+                v.precio,
+                v.stock
+            FROM productos p
+            INNER JOIN categorias c ON p.id_categoria = c.id_categoria
+            LEFT JOIN variante_productos v ON p.id_producto = v.id_producto
+            WHERE p.activo = 1
+            ORDER BY p.nombre, v.talle, v.color
+        ");
+        $query->execute();
+        $rows = $query->fetchAll(PDO::FETCH_OBJ);
+
+        $productos = [];
+        foreach($rows as $row){
+            $id = $row->id_producto;
+            if(!isset($productos[$id])){
+                $productos[$id] = (object)[
+                    'id_producto'      => $row->id_producto,
+                    'id_categoria'     => $row->id_categoria,
+                    'categoria_nombre' => $row->categoria_nombre,
+                    'nombre'           => $row->nombre,
+                    'descripcion'      => $row->descripcion,
+                    'precio_base'      => $row->precio_base,
+                    'marca'            => $row->marca,
+                    'img'              => $row->img,
+                    'activo'           => $row->activo,
+                    'variantes'        => []
+                ];
+            }
+            if($row->id_variante !== null){
+                $productos[$id]->variantes[] = (object)[
+                    'id_variante' => $row->id_variante,
+                    'talle'       => $row->talle,
+                    'color'       => $row->color,
+                    'precio'      => $row->precio,
+                    'stock'       => $row->stock
+                ];
+            }
+        }
+
+        return array_values($productos);
+    }
+
     function listarProductosPorCategoria($id_categoria){
         $query = $this->db->prepare("
             SELECT 

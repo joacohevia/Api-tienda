@@ -4,6 +4,10 @@ require_once 'app/models/PedidoModel.php';
 require_once 'app/view/Api.View.php';
 require_once 'helpers/JWTAuth.helper.php';
 require_once 'app/models/UsuarioModel.php';
+require_once 'app/DTO/pedido/PedidoDTO.php';
+require_once 'app/DTO/pedido/PedidoDetalleDTO.php';
+require_once 'app/DTO/pedido/PedidoUsuarioDTO.php';
+require_once 'app/DTO/pedido/PedidoProductoDTO.php';
 
 class PedidoController {
 
@@ -51,7 +55,8 @@ class PedidoController {
         $pedidos = $this->model->listarPedidosPorUsuario($id_usuario);
 
         if($pedidos !== false){
-            $this->view->response($pedidos, 200);
+            $pedidosDTO = PedidoUsuarioDTO::fromDatabaseList($pedidos);
+            $this->view->response($pedidosDTO, 200);
         }else{
             $this->view->response('Error al obtener pedidos', 500);
         }
@@ -71,7 +76,8 @@ class PedidoController {
             return;
         }
 
-        $this->view->response($pedido, 200);
+        $pedidoDTO = PedidoDetalleDTO::fromDatabase($pedido);
+        $this->view->response($pedidoDTO, 200);
     }
 
     function crear($params = []){
@@ -101,7 +107,8 @@ class PedidoController {
         $id_pedido = $this->model->crearPedido($data->id_usuario, $estado);
         
         if($id_pedido){
-            $this->view->response(['id_pedido' => $id_pedido, 'mensaje' => 'Pedido creado exitosamente'], 201);
+            $respuesta = PedidoProductoDTO::fromCrear($id_pedido);
+            $this->view->response($respuesta, 201);
         }else{
             $this->view->response('Error al crear el pedido', 500);
         }
@@ -225,7 +232,8 @@ class PedidoController {
             $total = $this->model->calcularTotalPedido($id_pedido);
             $this->model->actualizarTotalPedido($id_pedido, $total);
             
-            $this->view->response(['mensaje' => 'Producto agregado al pedido exitosamente', 'nuevo_total' => $total], 201);
+            $respuesta = PedidoProductoDTO::fromAgregarProducto($total);
+            $this->view->response($respuesta, 201);
         }else{
             $this->view->response('Error al agregar el producto', 500);
         }
