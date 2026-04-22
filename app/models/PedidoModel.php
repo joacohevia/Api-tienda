@@ -217,7 +217,16 @@ class PedidoModel extends Model{
         $query->execute([$id_pedido]);
         return $query->fetchAll(PDO::FETCH_OBJ);
     }
+    function descontarStockVariante($id_variante, $cantidad){
+        $query = $this->db->prepare("UPDATE variante_productos SET stock = stock - ? WHERE id_variante = ?");
+        return $query->execute([$cantidad, $id_variante]);
+    }
 
+    function obtenerVariante($id_variante){
+        $query = $this->db->prepare("SELECT * FROM variante_productos WHERE id_variante = ?");
+        $query->execute([$id_variante]);
+        return $query->fetch(PDO::FETCH_OBJ);
+    }
     // ==================== VALIDACIONES ====================
 
     function verificarPedidoExiste($id){

@@ -6,6 +6,13 @@ class ProductoModel extends Model{
     // ==================== MÉTODOS DE PRODUCTOS ====================
     
     function listarProductos(){
+         // DEBUG TEMPORAL - sacalo después
+    try {
+        $test = $this->db->query("SELECT COUNT(*) FROM productos")->fetchColumn();
+        error_log("DEBUG: productos en DB = " . $test);
+    } catch (Exception $e) {
+        error_log("DEBUG ERROR: " . $e->getMessage());
+    }
         $query = $this->db->prepare("
             SELECT 
                 p.id_producto,

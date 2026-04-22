@@ -1,2 +1,6 @@
 crear_admin.php
 config.php
+.env
+docker-compose.yml
+php-errors.log
+tiendaropa.sql

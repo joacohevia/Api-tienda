@@ -156,11 +156,7 @@ class PedidoController {
     }
 
     function eliminar($params = []){
-        $userPayload = JWTAuth::getAuthUser();
-        if(!$userPayload || $userPayload->rol !== 'admin'){
-            $this->view->response('Acceso denegado. Se requiere rol de administrador.', 403);
-            return;
-        }
+        
 
         if(!isset($params[':id']) || empty($params[':id'])){
             $this->view->response('El ID del pedido es requerido', 400);
@@ -293,6 +289,41 @@ class PedidoController {
             $this->view->response(['mensaje' => 'Producto eliminado del pedido exitosamente', 'nuevo_total' => $total], 200);
         }else{
             $this->view->response('Error al eliminar el producto', 500);
+        }
+    }
+    //DESCONTAR STOCK
+    function actualizarStock($params = []){
+        if(!isset($params[':id_variante']) || empty($params[':id_variante'])){
+            $this->view->response('El ID de la variante es requerido', 400);
+            return;
+        }
+
+        $id_variante = $params[':id_variante'];
+        $data = $this->getData();
+
+        if(!isset($data->cantidad) || $data->cantidad <= 0){
+            $this->view->response('La cantidad a descontar debe ser mayor a 0', 400);
+            return;
+        }
+
+        // Obtener stock actual
+        $variante = $this->model->obtenerVariante($id_variante);
+        if(!$variante){
+            $this->view->response('Variante no encontrada', 404);
+            return;
+        }
+
+        // Verificar que hay stock suficiente
+        if($variante->stock < $data->cantidad){
+            $this->view->response('Stock insuficiente. Stock disponible: ' . $variante->stock, 400);
+            return;
+        }
+
+        // Descontar stock (restar)
+        if($this->model->descontarStockVariante($id_variante, $data->cantidad)){
+            $this->view->response(['mensaje' => 'Stock descontado exitosamente', 'stock_restante' => $variante->stock - $data->cantidad], 200);
+        }else{
+            $this->view->response('Error al descontar stock', 500);
         }
     }
 }

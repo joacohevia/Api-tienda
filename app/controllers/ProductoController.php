@@ -24,11 +24,11 @@ class ProductoController {
     }
 
     // ==================== GESTIÓN DE PRODUCTOS ====================
-//necesito q esta funcion por producto traiga sus variantes
 
     function listar($params = []){
+        
         $productos = $this->model->listarProductos();
-
+        
         if($productos){
             $productosDTO = ProductDTO::fromDatabaseList($productos);
             $this->view->response($productosDTO, 200);
@@ -36,7 +36,9 @@ class ProductoController {
             $this->view->response('No hay productos disponibles', 404);
         }
     }
-
+    function listarPorNomCategoria($params = []){
+        
+    }
     function listarPorCategoria($params = []){
         if(!isset($params[':id']) || empty($params[':id'])){
             $this->view->response('El ID de categoría es requerido', 400);

@@ -27,10 +27,10 @@ class UsuarioModel extends Model{
         return $query->fetch(PDO::FETCH_OBJ);
     }
 
-    function insertarUsuario($nombre, $apellido, $dni, $email, $password, $rol = 'cliente'){
+    function insertarUsuario($nombre, $apellido, $dni, $celular, $email, $password, $rol = 'cliente'){
         $passwordHash = password_hash($password, PASSWORD_BCRYPT);
-        $query = $this->db->prepare("INSERT INTO usuarios (nombre, apellido, dni, email, password, rol) VALUES (?, ?, ?, ?, ?, ?)");
-        return $query->execute([$nombre, $apellido, $dni, $email, $passwordHash, $rol]);
+        $query = $this->db->prepare("INSERT INTO usuarios (nombre, apellido, dni, celular, email, password, rol) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        return $query->execute([$nombre, $apellido, $dni, $celular, $email, $passwordHash, $rol]);
     }
 
     function actualizarUsuario($id, $nombre, $apellido, $dni, $email, $rol){

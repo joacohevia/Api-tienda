@@ -1,5 +1,4 @@
 # Tienda de Ropa - API REST
-
 API REST para gestión de una tienda de ropa. Expone endpoints para autenticación, categorías, productos, variantes, usuarios y pedidos.
 
 **Stack:** PHP 8.2+ | MySQL 10.4+ | Apache 2.4+ (mod_rewrite)

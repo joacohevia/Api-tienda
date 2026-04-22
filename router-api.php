@@ -60,6 +60,7 @@ $router->addRoute("productos", "GET", "ProductoController", "listar");
 $router->addRoute("productos/:id", "GET", "ProductoController", "obtener");
 $router->addRoute("productos/categoria/:id", "GET", "ProductoController", "listarPorCategoria");
 $router->addRoute("variantes/:id_variante", "GET", "ProductoController", "obtenerVariante");
+
 // Protegidas 
 $router->addRoute("productos", "POST", "ProductoController", "crear", true);
 $router->addRoute("productos/:id", "PUT", "ProductoController", "actualizar", true);
@@ -79,7 +80,9 @@ $router->addRoute("pedidos/:id", "DELETE", "PedidoController", "eliminar", true)
 $router->addRoute("pedidos/usuario/:id", "GET", "PedidoController", "listarPorUsuario", true);
 $router->addRoute("pedidos/:id/productos", "POST", "PedidoController", "agregarProducto", true);
 $router->addRoute("pedidos/producto/:id_pedido_producto", "PUT", "PedidoController", "actualizarProducto", true);
+$router->addRoute("/pedidos/producto/descontar-stock/:id_variante", "PUT", "PedidoController", "actualizarStock", true);
 $router->addRoute("pedidos/producto/:id_pedido_producto", "DELETE", "PedidoController", "eliminarProducto", true);
+
 
 // ejecuta la ruta (sea cual sea)
 $router->route($_GET["resource"], $_SERVER['REQUEST_METHOD']);
