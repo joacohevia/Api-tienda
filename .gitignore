@@ -2,4 +2,6 @@ crear_admin.php
 config.php
 .env
 php-errors.log
-tiendaropa.sql
+Dockerfile
+docker-compose.yml
+.dockerignore
