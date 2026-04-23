@@ -82,8 +82,6 @@ $router->addRoute("pedidos/:id/productos", "POST", "PedidoController", "agregarP
 $router->addRoute("pedidos/producto/:id_pedido_producto", "PUT", "PedidoController", "actualizarProducto", true);
 $router->addRoute("/pedidos/producto/descontar-stock/:id_variante", "PUT", "PedidoController", "actualizarStock", true);
 $router->addRoute("pedidos/producto/:id_pedido_producto", "DELETE", "PedidoController", "eliminarProducto", true);
-
-
 // ejecuta la ruta (sea cual sea)
 $router->route($_GET["resource"], $_SERVER['REQUEST_METHOD']);
 

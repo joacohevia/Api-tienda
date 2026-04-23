@@ -12,6 +12,10 @@ services:
     environment:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION}
+      MYSQL_HOST: mysql        # 👈 nombre del servicio, no localhost
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     networks:
       - app-network
 
@@ -21,7 +25,7 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DB}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
     volumes:
       - ./tiendaropa.sql:/docker-entrypoint-initdb.d/tiendaropa.sql
       - db-data:/var/lib/mysql
@@ -34,9 +38,9 @@ services:
     ports:
       - "8081:80"
     environment:
-      PMA_HOST: ${PMA_HOST}
-      PMA_USER: ${PMA_USER}
-      PMA_PASSWORD: ${PMA_PASSWORD}
+      PMA_HOST: mysql          # 👈 también acá
+      PMA_USER: root
+      PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     depends_on:
       - mysql
     networks:

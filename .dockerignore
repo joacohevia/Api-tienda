@@ -1,0 +1,16 @@
+# Ignorar archivos y carpetas innecesarios para el build de Docker
+.git
+.gitignore
+database/
+README.md
+API_ENDPOINTS.md
+Dockerfile
+docker-compose.yml
+phpmyadmin/
+node_modules/
+*.log
+*.sql
+.env
+.idea/
+.vscode/
+skills-lock.json
