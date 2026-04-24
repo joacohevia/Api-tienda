@@ -1,5 +1,4 @@
 <?php
-// Al inicio de router-api.php, después de <?php
 register_shutdown_function(function() {
     $error = error_get_last();
     if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_COMPILE_ERROR])) {

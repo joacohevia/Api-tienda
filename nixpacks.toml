@@ -4,4 +4,4 @@ nixPkgs = ["php", "phpExtensions.pdo_mysql"]
 
 [start]
 # Usar index.php como entry point (no router-api.php directamente)
-cmd = "php -S 0.0.0.0:$PORT index.php"
+cmd = "php -S 0.0.0.0:$PORT router-api.php"
