@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . 'app/models/UsuarioModel.php';
-require_once __DIR__ . 'helpers/JWTAuth.helper.php';
+require_once __DIR__ . '/../models/UsuarioModel.php';
+require_once __DIR__ . '/../../helpers/JWTAuth.helper.php';
 
 class AuthService extends UsuarioModel{
 

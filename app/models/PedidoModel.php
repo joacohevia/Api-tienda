@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . 'app/models/model.php';
+require_once __DIR__ . '/model.php';
 
 class PedidoModel extends Model{
 

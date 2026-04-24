@@ -1,13 +1,13 @@
 <?php
 
-require_once __DIR__ . 'app/models/PedidoModel.php';
-require_once __DIR__ . 'app/view/Api.View.php';
-require_once __DIR__ . 'helpers/JWTAuth.helper.php';
-require_once __DIR__ . 'app/models/UsuarioModel.php';
-require_once __DIR__ . 'app/DTO/pedido/PedidoDTO.php';
-require_once __DIR__ . 'app/DTO/pedido/PedidoDetalleDTO.php';
-require_once __DIR__ . 'app/DTO/pedido/PedidoUsuarioDTO.php';
-require_once __DIR__ . 'app/DTO/pedido/PedidoProductoDTO.php';
+require_once __DIR__ . '/../models/PedidoModel.php';
+require_once __DIR__ . '/../view/Api.View.php';
+require_once __DIR__ . '/../../helpers/JWTAuth.helper.php';
+require_once __DIR__ . '/../models/UsuarioModel.php';
+require_once __DIR__ . '/../DTO/pedido/PedidoDTO.php';
+require_once __DIR__ . '/../DTO/pedido/PedidoDetalleDTO.php';
+require_once __DIR__ . '/../DTO/pedido/PedidoUsuarioDTO.php';
+require_once __DIR__ . '/../DTO/pedido/PedidoProductoDTO.php';
 
 class PedidoController {
 

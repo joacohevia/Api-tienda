@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '../../helpers/JWTAuth.helper.php';
+require_once __DIR__ . '/../helpers/JWTAuth.helper.php';
 class Route {
     private $url;
     private $verb;

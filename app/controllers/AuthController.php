@@ -1,11 +1,11 @@
 <?php
 
-require_once __DIR__ . 'app/models/UsuarioModel.php';
-require_once __DIR__ . 'app/service/AuthService.php';
-require_once __DIR__ . 'app/view/Api.View.php';
-require_once __DIR__ . 'helpers/JWTAuth.helper.php';
-require_once __DIR__ . 'app/DTO/auth/LoginDTO.php';
-require_once __DIR__ . 'app/DTO/auth/RegistroDTO.php';
+require_once __DIR__ . '/../models/UsuarioModel.php';
+require_once __DIR__ . '/../service/AuthService.php';
+require_once __DIR__ . '/../view/Api.View.php';
+require_once __DIR__ . '/../../helpers/JWTAuth.helper.php';
+require_once __DIR__ . '/../DTO/auth/LoginDTO.php';
+require_once __DIR__ . '/../DTO/auth/RegistroDTO.php';
 
 class AuthController {
 

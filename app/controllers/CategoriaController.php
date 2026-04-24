@@ -1,8 +1,8 @@
 <?php
 
-require_once __DIR__ . 'app/models/CategoriaModel.php';
-require_once __DIR__ . 'app/view/Api.View.php';
-require_once __DIR__ . 'helpers/JWTAuth.helper.php';
+require_once __DIR__ . '/../models/CategoriaModel.php';
+require_once __DIR__ . '/../view/Api.View.php';
+require_once __DIR__ . '/../../helpers/JWTAuth.helper.php';
 
 class CategoriaController {
 
