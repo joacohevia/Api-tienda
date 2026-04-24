@@ -1,4 +1,13 @@
 <?php
+// Al inicio de router-api.php, después de <?php
+register_shutdown_function(function() {
+    $error = error_get_last();
+    if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_COMPILE_ERROR])) {
+        error_log("FATAL ERROR: " . $error['message'] . " in " . $error['file'] . ":" . $error['line']);
+        http_response_code(500);
+        echo json_encode(['error' => 'Internal server error']);
+    }
+});
 // Deshabilitar errores HTML en producción (para no romper JSON)
 error_reporting(E_ALL);      // ← Reporta TODOS los errores
 ini_set('display_errors', 0); // ← NO los muestra en el HTML/JSON (0 = apagado)
@@ -14,6 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
 }
+require_once './app/controllers/HealthController.php';
 require_once 'config.php';
 require_once 'libs/Router.php';
 require_once './app/controllers/AuthController.php';
@@ -21,7 +31,6 @@ require_once './app/controllers/CategoriaController.php';
 require_once './app/controllers/UsuarioController.php';
 require_once './app/controllers/PedidoController.php';
 require_once './app/controllers/ProductoController.php';
-require_once './app/controllers/HealthController.php';
 //Las rutas publicas puede acceder cualquiera mientras las que necesitan
 //auth solo los usuario, que a su vez se verifica que sean admin si corresponde
 $router = new Router();
@@ -83,6 +92,5 @@ $router->addRoute("pedidos/producto/:id_pedido_producto", "PUT", "PedidoControll
 $router->addRoute("/pedidos/producto/descontar-stock/:id_variante", "PUT", "PedidoController", "actualizarStock", true);
 $router->addRoute("pedidos/producto/:id_pedido_producto", "DELETE", "PedidoController", "eliminarProducto", true);
 // ejecuta la ruta (sea cual sea)
-$router->route($_GET["resource"], $_SERVER['REQUEST_METHOD']);
-
-
+$resource = $_GET["resource"] ?? "health";
+$router->route($resource, $_SERVER['REQUEST_METHOD']);
