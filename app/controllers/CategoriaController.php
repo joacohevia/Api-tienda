@@ -20,15 +20,18 @@ class CategoriaController {
             return json_decode($this->data);
     }
 
-    function listar($params = []){
+    function listar($params = []) {
+        try {
+            $categorias = $this->model->listarCategorias();
 
-        $categorias = $this->model->listarCategorias();
-
-        if($categorias){
-            $this->view->response($categorias,200);
-        }else{
-            $this->view->response(
-            'No hay categorías disponibles',404);
+            if($categorias){
+                $this->view->response($categorias, 200);
+            } else {
+                $this->view->response('No hay categorías disponibles', 404);
+            }
+        } catch (Throwable $e) {
+            error_log("CategoriaController::listar error: " . $e->getMessage());
+            $this->view->response('Error interno del servidor', 500);
         }
     }
     function obtener($params = []){

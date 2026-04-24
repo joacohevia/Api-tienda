@@ -17,6 +17,7 @@ error_reporting(E_ALL);      // ← Reporta TODOS los errores
 ini_set('display_errors', 0); // ← NO los muestra en el HTML/JSON (0 = apagado)
 ini_set('log_errors', 1);     // ← Sí los guarda en un archivo (1 = encendido)
 ini_set('error_log', 'php-errors.log'); // ← Nombre del archivo de log
+ini_set('error_log', 'php://stderr');
 // 🌐 HEADERS CORS para swuagger
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");

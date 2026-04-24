@@ -1,7 +1,6 @@
 <?php
 
-require_once __DIR__ . 'helpers/JWTAuth.helper.php';
-
+require_once __DIR__ . '../../helpers/JWTAuth.helper.php';
 class Route {
     private $url;
     private $verb;
@@ -37,8 +36,9 @@ class Route {
         }
         return true;
     }
-    public function run(){
-        // Si la ruta requiere autenticación, verificar JWT
+
+public function run() {
+    try {
         if($this->authRequired){
             $userPayload = JWTAuth::getAuthUser();
             if(!$userPayload){
@@ -54,7 +54,14 @@ class Route {
         $params = $this->params;
        
         (new $controller())->$method($params);
+    } catch (Throwable $e) {
+        error_log("Route run error: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
+        http_response_code(500);
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Internal server error']);
+        exit;
     }
+}
 }
 
 class Router {
@@ -66,24 +73,30 @@ class Router {
     }
 
    public function route($url, $verb) {
-    foreach ($this->routeTable as $route) {
-        if($route->match($url, $verb)){
-            $route->run();
-            return; // ✅ Encontró ruta → ejecuta y termina
+    try {
+        foreach ($this->routeTable as $route) {
+            if($route->match($url, $verb)){
+                $route->run();
+                return;
+            }
         }
+        
+        if ($this->defaultRoute != null){
+            $this->defaultRoute->run();
+            return;
+        }
+        
+        http_response_code(404);
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Endpoint not found']);
+        exit;
+    } catch (Throwable $e) {
+        error_log("Router error: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
+        http_response_code(500);
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Internal server error']);
+        exit;
     }
-    
-    // Si hay ruta por defecto, ejecutarla
-    if ($this->defaultRoute != null){
-        $this->defaultRoute->run();
-        return; // ✅ Terminar después de ejecutar default
-    }
-    
-    // ❌ Si no hay match NI default → responder 404 SIEMPRE
-    http_response_code(404);
-    header('Content-Type: application/json');
-    echo json_encode(['error' => 'Endpoint not found']);
-    exit;
 }
     
     public function addRoute ($url, $verb, $controller, $method, $authRequired = false) {
