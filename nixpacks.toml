@@ -1,8 +1,7 @@
-# nixpacks.toml - Configuración para Railway + PHP (sin carpeta public)
-
+# nixpacks.toml
 [phases.setup]
 nixPkgs = ["php", "phpExtensions.pdo_mysql"]
 
 [start]
-# Sin -t public porque no tenés esa carpeta. Ejecutamos router-api.php directamente.
-cmd = "php -S 0.0.0.0:$PORT router-api.php"
+# Usar index.php como entry point (no router-api.php directamente)
+cmd = "php -S 0.0.0.0:$PORT index.php"

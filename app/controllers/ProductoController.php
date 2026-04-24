@@ -1,11 +1,11 @@
 <?php
 
-require_once 'app/models/ProductoModel.php';
-require_once 'app/view/Api.View.php';
-require_once 'helpers/JWTAuth.helper.php';
-require_once 'app/DTO/producto/productoDTO.php';
-require_once 'app/DTO/producto/productoVarianteDTO.php';
-require_once 'app/DTO/producto/ProductoCategoriaDTO.php';
+require_once __DIR__ . 'app/models/ProductoModel.php';
+require_once __DIR__ . 'app/view/Api.View.php';
+require_once __DIR__ . 'helpers/JWTAuth.helper.php';
+require_once __DIR__ . 'app/DTO/producto/productoDTO.php';
+require_once __DIR__ . 'app/DTO/producto/productoVarianteDTO.php';
+require_once __DIR__ . 'app/DTO/producto/ProductoCategoriaDTO.php';
 
 class ProductoController {
 
