@@ -1,11 +1,8 @@
-# nixpacks.toml
+# nixpacks.toml - Configuración para Railway + PHP (sin carpeta public)
+
 [phases.setup]
 nixPkgs = ["php", "phpExtensions.pdo_mysql"]
 
-[phases.build]
-# Opcional: si usás composer en el futuro, descomentá esta línea
-# cmds = ["composer install --no-dev --optimize-autoloader"]
-
 [start]
-# Router-api.php está en la raíz, así que lo ejecutamos directamente
+# Sin -t public porque no tenés esa carpeta. Ejecutamos router-api.php directamente.
 cmd = "php -S 0.0.0.0:$PORT router-api.php"
