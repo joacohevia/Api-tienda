@@ -8,6 +8,10 @@ register_shutdown_function(function() {
         echo json_encode(['error' => 'Internal server error']);
     }
 });
+// Debug logging (se verá en Railway → Logs)
+error_log("🚀 router-api.php iniciado - PID: " . getmypid());
+error_log("📁 __DIR__ = " . __DIR__);
+error_log("🔍 REQUEST: " . $_SERVER['REQUEST_METHOD'] . " " . ($_GET['resource'] ?? 'null'));
 // Deshabilitar errores HTML en producción (para no romper JSON)
 error_reporting(E_ALL);      // ← Reporta TODOS los errores
 ini_set('display_errors', 0); // ← NO los muestra en el HTML/JSON (0 = apagado)
@@ -23,14 +27,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
 }
-require_once './app/controllers/HealthController.php';
-require_once 'config.php';
-require_once 'libs/Router.php';
-require_once './app/controllers/AuthController.php';
-require_once './app/controllers/CategoriaController.php';
-require_once './app/controllers/UsuarioController.php';
-require_once './app/controllers/PedidoController.php';
-require_once './app/controllers/ProductoController.php';
+require_once __DIR__ . '/app/controllers/HealthController.php';
+require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/libs/Router.php';
+require_once __DIR__ . '/app/controllers/AuthController.php';
+require_once __DIR__ . '/app/controllers/CategoriaController.php';
+require_once __DIR__ . '/app/controllers/UsuarioController.php';
+require_once __DIR__ . '/app/controllers/PedidoController.php';
+require_once __DIR__ . '/app/controllers/ProductoController.php';
 //Las rutas publicas puede acceder cualquiera mientras las que necesitan
 //auth solo los usuario, que a su vez se verifica que sean admin si corresponde
 $router = new Router();
