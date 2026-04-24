@@ -21,11 +21,11 @@ require_once './app/controllers/CategoriaController.php';
 require_once './app/controllers/UsuarioController.php';
 require_once './app/controllers/PedidoController.php';
 require_once './app/controllers/ProductoController.php';
-
+require_once './app/controllers/HealthController.php';
 //Las rutas publicas puede acceder cualquiera mientras las que necesitan
 //auth solo los usuario, que a su vez se verifica que sean admin si corresponde
 $router = new Router();
-
+$router->addRoute("health", "GET", "HealthController", "check");
 #                 endpoint      verbo     controller           método en el controller
 //las query params son parametro que llegan desde la url y se toman por metod get desde el controller
 

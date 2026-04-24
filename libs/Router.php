@@ -65,20 +65,26 @@ class Router {
         $this->defaultRoute = null;
     }
 
-    public function route($url, $verb) {
-        //$ruta->url //no compila!
-        foreach ($this->routeTable as $route) {
-            if($route->match($url, $verb)){
-                //TODO: ejecutar el controller//ejecutar el controller
-                // pasarle los parametros
-                $route->run();
-                return;
-            }
+   public function route($url, $verb) {
+    foreach ($this->routeTable as $route) {
+        if($route->match($url, $verb)){
+            $route->run();
+            return; // ✅ Encontró ruta → ejecuta y termina
         }
-        //Si ninguna ruta coincide con el pedido y se configuró ruta por defecto.
-        if ($this->defaultRoute != null)
-            $this->defaultRoute->run();
     }
+    
+    // Si hay ruta por defecto, ejecutarla
+    if ($this->defaultRoute != null){
+        $this->defaultRoute->run();
+        return; // ✅ Terminar después de ejecutar default
+    }
+    
+    // ❌ Si no hay match NI default → responder 404 SIEMPRE
+    http_response_code(404);
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Endpoint not found']);
+    exit;
+}
     
     public function addRoute ($url, $verb, $controller, $method, $authRequired = false) {
         $this->routeTable[] = new Route($url, $verb, $controller, $method, $authRequired);
