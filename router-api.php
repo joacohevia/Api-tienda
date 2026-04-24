@@ -96,5 +96,30 @@ $router->addRoute("pedidos/producto/:id_pedido_producto", "PUT", "PedidoControll
 $router->addRoute("/pedidos/producto/descontar-stock/:id_variante", "PUT", "PedidoController", "actualizarStock", true);
 $router->addRoute("pedidos/producto/:id_pedido_producto", "DELETE", "PedidoController", "eliminarProducto", true);
 // ejecuta la ruta (sea cual sea)
-$resource = $_GET["resource"] ?? "health";
+// 1. Intentar leer de query param (prioridad, para compatibilidad)
+$resource = $_GET['resource'] ?? null;
+
+// 2. Si no viene, intentar leer de PATH_INFO (servidor PHP built-in lo soporta)
+if (!$resource && isset($_SERVER['PATH_INFO']) && $_SERVER['PATH_INFO'] !== '/' && $_SERVER['PATH_INFO'] !== '') {
+  $resource = trim($_SERVER['PATH_INFO'], '/');
+}
+
+// 3. Fallback: parsear la URI completa (para casos edge)
+if (!$resource) {
+  $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+  $resource = trim($uri, '/');
+  
+  // Si la ruta es vacía o "/", usar un recurso por defecto o devolver 404
+  if ($resource === '' || $resource === 'index.php') {
+    http_response_code(200);
+    header('Content-Type: application/json');
+    echo json_encode(['status' => 'ok', 'message' => 'API running. Use /?resource=HEALTH or clean URLs like /health']);
+    exit;
+  }
+}
+
+// 4. Logging para debug (se ve en Railway)
+error_log("🔍 ROUTING: {$_SERVER['REQUEST_METHOD']} /$resource");
+
+// 5. Ejecutar el router
 $router->route($resource, $_SERVER['REQUEST_METHOD']);

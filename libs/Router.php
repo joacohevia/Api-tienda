@@ -18,23 +18,34 @@ class Route {
         $this->authRequired = $authRequired;
     }
     public function match($url, $verb) {
-        if($this->verb != $verb){
+    $url = trim($url, '/');
+    $routeUrl = trim($this->url, '/');
+    
+    if ($this->verb !== strtoupper($verb)) {
+        return false;
+    }
+    
+    $partsUrl = explode('/', $url);
+    $partsRoute = explode('/', $routeUrl);
+    
+    if (count($partsRoute) !== count($partsUrl)) {
+        return false;
+    }
+    
+    foreach ($partsRoute as $i => $routePart) {
+        $urlPart = $partsUrl[$i];
+        
+        if (str_starts_with($routePart, ':')) {
+            $this->params[$routePart] = $urlPart; // ← con ":" para compatibilidad
+            continue;
+        }
+        
+        if ($routePart !== $urlPart) {
             return false;
         }
-        $partsURL = explode("/", trim($url,'/'));
-        $partsRoute = explode("/", trim($this->url,'/'));
-        if(count($partsRoute) != count($partsURL)){
-            return false;
-        }
-        foreach ($partsRoute as $key => $part) {
-            if($part[0] != ":"){
-                if($part != $partsURL[$key])
-                return false;
-            } //es un parametro
-            else
-            $this->params[$part] = $partsURL[$key];
-        }
-        return true;
+    }
+    
+    return true;
     }
 
 public function run() {
@@ -88,7 +99,11 @@ class Router {
         
         http_response_code(404);
         header('Content-Type: application/json');
-        echo json_encode(['error' => 'Endpoint not found']);
+        echo json_encode([
+            'error' => 'Endpoint not found',
+            'requested' => "$verb /$url",
+            'available_routes' => array_map(fn($r) => "{$r->verb} /{$r->url}", $this->routeTable)
+        ]);
         exit;
     } catch (Throwable $e) {
         error_log("Router error: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
